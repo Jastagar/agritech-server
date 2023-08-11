@@ -29,7 +29,7 @@ contract kissanFundContract2{
         uint numberOfVoters;
     }
 
-    IERC20 token = IERC20(0x1F26A75215E616B604023627985E15b5a5732De3);
+    IERC20 token = IERC20(0x9a393215E928E519955293C0d6d64c8A10365dc5);
     mapping(uint => Request) public allRequests;
     uint public numberOfRequests;
     bytes32 DOMAIN_SEPARATOR;

@@ -27,16 +27,16 @@ router.post("/signup", async (req, res) => {
 		const salt = await bcrypt.genSalt(Number(process.env.SALT));
 		const hashPassword = await bcrypt.hash(req.body.password, salt);
 		const walletAddress = await addAccount(req.body.password)
-		const value = "0x" + parseInt(Web3.utils.toWei("1", "ether")).toString(16)
-		const tx = {
-			from: process.env.BACKEND_COINBASE_WALLET_ADDRESS,
-			to: walletAddress,
-			value,
-			gas: 1000000000,
-			gasLimit: 210000,
-		}
-		const signedtx = await web3.eth.accounts.signTransaction(tx, process.env.BACKEND_COINBASE_WALLET_PRIVATEKEY)
-		await web3.eth.sendSignedTransaction(signedtx.rawTransaction)
+		// const value = "0x" + parseInt(Web3.utils.toWei("1", "ether")).toString(16)
+		// const tx = {
+		// 	from: process.env.BACKEND_COINBASE_WALLET_ADDRESS,
+		// 	to: walletAddress,
+		// 	value,
+		// 	gas: 1000000000,
+		// 	gasLimit: 210000,
+		// }
+		// const signedtx = await web3.eth.accounts.signTransaction(tx, process.env.BACKEND_COINBASE_WALLET_PRIVATEKEY)
+		// await web3.eth.sendSignedTransaction(signedtx.rawTransaction)
 		const user = await new User({ ...req.body, password: hashPassword, walletAddress: walletAddress }).save();
 
 		//email verification
@@ -49,7 +49,7 @@ router.post("/signup", async (req, res) => {
 
 
 	} catch (err) {
-		console.log(err);
+		// console.log(err);
 		res.status(500).json({ error: true, message: "Internal Server Error" });
 	}
 });
@@ -122,7 +122,7 @@ router.post("/login", async (req, res) => {
 		});
 
 	} catch (err) {
-		console.log(err);
+		// console.log(err);
 		res.status(500).json({ error: true, message: "Internal Server Error" });
 	}
 });

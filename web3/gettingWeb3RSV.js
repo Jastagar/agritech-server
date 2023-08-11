@@ -14,15 +14,16 @@ function splitSignature(signature){
     const r = signature.slice(0,66);
     const s = "0x" + signature.slice(66,130);
     const v = parseInt("0x" + signature.slice(130,132));
-    console.log("v:",v)
-    console.log("r:",r)
-    console.log("s:",s)
+    // console.log("v:",v)
+    // console.log("r:",r)
+    // console.log("s:",s)
     return {r,s,v}
 }
 const contract = new web3.eth.Contract(CoinsABI2,Caddress)
 
 async function getSign(owner,toAddress,value,password){
   const nonce = await contract.methods.nonces(owner).call()
+  // console.log("--->nonce:",nonce)
   const msgData = permitWalletMessageToSign(owner,toAddress,nonce,value)
   const signature = signTypedData({
       privateKey:getPrivateKeyFromAccount(owner,password),

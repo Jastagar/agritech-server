@@ -27,14 +27,18 @@ async function getMaxAmountSoFar(contract) {
 // initiate VoteReq
 async function initateVoteReq(cAddress, fromAddress, toAddess, amount, reason, password) {
     const contract = loadContractAt(cAddress)
-    const unlocked = await web3.eth.personal.unlockAccount(process.env.BACKEND_COINBASE_WALLET_ADDRESS, process.env.BACKEND_COINBASE_WALLET_PASSWORD, 1000)
-    info(unlocked)
-    if (contract && unlocked) {
+    if (contract) {
         const {r,s,v} = await getSignR(cAddress,toAddess,amount,fromAddress,password);
         info("Got RSV")
-        const response = await contract.methods.CreateRequest(toAddess, amount,v,r,s).send({
-            from: process.env.BACKEND_COINBASE_WALLET_ADDRESS
-        })
+        const gasEstimate = await contract.methods.CreateRequest(toAddess, amount,v,r,s).estimateGas(); // estimate gas
+        const txTemp = {
+            from:process.env.BACKEND_COINBASE_WALLET_ADDRESS,
+            to:cAddress,
+            gas:gasEstimate,
+            data: contract.methods.CreateRequest(toAddess, amount,v,r,s).encodeABI()
+        }
+        const sig = await web3.eth.accounts.signTransaction(txTemp,process.env.BACKEND_COINBASE_WALLET_PRIVATEKEY)
+        const response = await web3.eth.sendSignedTransaction(sig.rawTransaction)
         info("Vote Res->", response)
         return response
     } else {
@@ -44,13 +48,17 @@ async function initateVoteReq(cAddress, fromAddress, toAddess, amount, reason, p
 // vote in certain req
 async function voteInReq(cAddress, reqNumber, voter, password) {
     const contract = loadContractAt(cAddress);
-    const unlocked = await web3.eth.personal.unlockAccount(process.env.BACKEND_COINBASE_WALLET_ADDRESS,process.env.BACKEND_COINBASE_WALLET_PASSWORD, 1000)
-    info(unlocked)
-    if (contract && unlocked) {
+    if (contract) {
         const {r,s,v} = await getSignVR(cAddress,reqNumber,voter,password);//contractAddress,vote number,voter,password
-        const response = await contract.methods.VoteRequest(reqNumber,v,r,s).send({
-            from: process.env.BACKEND_COINBASE_WALLET_ADDRESS
-        })
+        const gasEstimate = await contract.methods.VoteRequest(reqNumber,v,r,s).estimateGas(); // estimate gas
+        const txTemp = {
+            from:process.env.BACKEND_COINBASE_WALLET_ADDRESS,
+            to:cAddress,
+            gas:gasEstimate,
+            data: contract.methods.VoteRequest(reqNumber,v,r,s).encodeABI()
+        }
+        const sig = await web3.eth.accounts.signTransaction(txTemp,process.env.BACKEND_COINBASE_WALLET_PRIVATEKEY)
+        const response = await web3.eth.sendSignedTransaction(sig.rawTransaction)
         info("Voted->", response)
         return response
     } else {
@@ -61,13 +69,17 @@ async function voteInReq(cAddress, reqNumber, voter, password) {
 // withdraw from activeRequest
 async function activateRequest(cAddress, owner, reqNumber, password) {
     const contract = loadContractAt(cAddress)
-    const unlocked = await web3.eth.personal.unlockAccount(process.env.BACKEND_COINBASE_WALLET_ADDRESS,process.env.BACKEND_COINBASE_WALLET_PASSWORD, 1000)
-    info(unlocked)
     if (contract && unlocked) {
         const {r,s,v} = await getSignTR(cAddress,parseInt(reqNumber) - 1,owner,password)
-        const response = await contract.methods.TransferToBuy(parseInt(reqNumber) - 1,v,r,s).send({
-            from: process.env.BACKEND_COINBASE_WALLET_ADDRESS
-        })
+        const gasEstimate = await contract.methods.TransferToBuy(parseInt(reqNumber) - 1,v,r,s).estimateGas(); // estimate gas
+        const txTemp = {
+            from:process.env.BACKEND_COINBASE_WALLET_ADDRESS,
+            to:cAddress,
+            gas:gasEstimate,
+            data: contract.methods.TransferToBuy(parseInt(reqNumber) - 1,v,r,s).encodeABI()
+        }
+        const sig = await web3.eth.accounts.signTransaction(txTemp,process.env.BACKEND_COINBASE_WALLET_PRIVATEKEY)
+        const response = await web3.eth.sendSignedTransaction(sig.rawTransaction)
         info("Status->", response)
         return response
     } else {

@@ -45,7 +45,7 @@ web3Router.post("/transfer", auth, async (req, res) => {
             message: 'Transfer Complete'
         })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({
             status: 'Failed',
             message: error.message

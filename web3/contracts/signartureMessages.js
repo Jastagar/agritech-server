@@ -16,7 +16,7 @@ const ContractDomain = {
 
 
 const permitWalletMessageToSign = (owner,toAddress,nonce,value) => {
-    console.log("Coins Addess",Caddress)
+    // console.log("Coins Addess",Caddress)
     return {
         types: {
           EIP712Domain,
@@ -32,7 +32,7 @@ const permitWalletMessageToSign = (owner,toAddress,nonce,value) => {
         domain: {
           name: "KissanCoins",
           version: "1",
-          chainId: "1337",
+          chainId: "80001",
           verifyingContract: Caddress
         },
         message: {

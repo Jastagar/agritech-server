@@ -29,7 +29,7 @@ const uploadImageToCloud = async (file, campaign, userId) => {
         const featuredImageUrl = await writeToCloudStorage(file, fileName)
         return featuredImageUrl
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         throw new Error('Image upload failed.')
     }
 }

@@ -27,7 +27,7 @@ web3RouterVoting.post('/makeRequest',auth, async (req,res) => {
     if(amount === 'GetFromProduct'){
         product = await Product.findById(receiverProduct)
         const reqAmount = product.price
-        const finalreceiver= '0x5c5e8d4372c726e3643fe2bb9c6c643c9fcff6f6';
+        const finalreceiver= '0x2ee4961905E3c9B6eC890d5F919224Ad6BD87637';
         dataFormed = {
             reason,
             receiver:finalreceiver,

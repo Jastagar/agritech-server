@@ -92,8 +92,8 @@ router.post("/order/create", async (req, res) => {
 
 router.post("/farmfresh/products/add", upload.any(), async (req, res) => {
     try {
-        console.log(req.body);
-        console.log(req.files)
+        // console.log(req.body);
+        // console.log(req.files)
         res.send()
     } catch (error) {
         res.status(500).send()

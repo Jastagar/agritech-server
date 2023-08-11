@@ -132,7 +132,7 @@ async function sendMail(userEmail, code) {
     info("OTP sent to registered email.")
   } catch (error) {
     info("Err")
-    console.log(error);
+    // console.log(error);
   }
 }
 

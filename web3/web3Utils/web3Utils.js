@@ -6,12 +6,15 @@ function getPrivateKeyFromAccount(account,password){
     info("Getting Users Private Key....")
     const encryptedFile = fs.readdirSync(__dirname+'/../../keystore')
     // info("Encrypted Files->",encryptedFile)
+    // console.log("Account---->",account)
     const requiredPath = encryptedFile.find(e => {
+        // console.log("1",e.split("--")[2])
+        // console.log("2",account.slice(2).toLowerCase())
         return e.split("--")[2]===account.slice(2).toLowerCase()
     })
-    // info("RequiredFilePath->",requiredPath)
+    info("RequiredFilePath->",requiredPath)
     if(!requiredPath){
-        console.log("account Not Found!!")
+        // console.log("account Not Found!!")
         return
     }
     const encryptedAccountFile = fs.readFileSync(__dirname+'/../../keystore/'+requiredPath,'utf8')

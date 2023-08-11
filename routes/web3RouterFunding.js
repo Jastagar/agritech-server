@@ -29,7 +29,7 @@ web3RouterFunding.get("/:cid", async (req, res) => {
         }
         res.status(200).json(dataToSend)
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.status(500).json({ error: true, message: error.message })
     }
 })
@@ -67,7 +67,6 @@ web3RouterFunding.post('/deployContract', upload.single('featuredImage'), async 
         const expire = data.deadline
         const contract = await deployContract(
             data.walletAddress,
-            data.password,
             data.target,
             expire,
             data.minContribution,
@@ -75,7 +74,7 @@ web3RouterFunding.post('/deployContract', upload.single('featuredImage'), async 
         const featuredImageUrl = await uploadImageToCloud(req.file, contract._address, manager._id)
         const newContractModel = new Campaign({
             title: data.title,
-            address: contract._address,
+            address: contract.contractAddress,
             target: data.target,
             deadline: expire,
             description: data.description,

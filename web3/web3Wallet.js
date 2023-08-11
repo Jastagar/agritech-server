@@ -15,99 +15,60 @@ async function getBalance(accountAddress) {
 	const ans = bal // we can use ether here since KCO has same decimal number as ether i.e. 18
 	return ans
 }
-
-async function transferKCO(fromAddress, toAddress, amount, password) {
-	const unlockedAcc = await web3.eth.personal.unlockAccount(fromAddress, password, 300)
-	info(unlockedAcc)
-	if (unlockedAcc) {
-		const res = await contract.methods.transfer(toAddress,amount).send({
-			from: fromAddress
-		})
-		const { transactionHash } = res
-		info(transactionHash)
-		return res
-	}
-	return false
-}
+// const gasEstimate = await KCOcontract.methods.withDrawTokens(walletAddress, (req.body.amount - 1)).estimateGas(); // estimate gas
+//             const txTemp = {
+//                 from:process.env.BACKEND_COINBASE_WALLET_ADDRESS,
+//                 to:Caddress,
+//                 gas:gasEstimate,
+//                 data: KCOcontract.methods.withDrawTokens(walletAddress, (req.body.amount - 1)).encodeABI()
+//             }
+//             const sig = await web3.eth.accounts.signTransaction(txTemp,process.env.BACKEND_COINBASE_WALLET_PRIVATEKEY)
+//             const response = await web3.eth.sendSignedTransaction(sig.rawTransaction)
 
 async function transferFromKCO(fromAddress, toAddress, amount, password) {
-	const unlockedAcc = await web3.eth.personal.unlockAccount(managerAcc, process.env.BACKEND_COINBASE_WALLET_PASSWORD, 1000)
-	info(unlockedAcc)
+	
 	await showAllowance(fromAddress, toAddress, password)
-	if (unlockedAcc) {
 		info('Transfering...')
 		// info('from',fromAddress)
 		// info('to',toAddress)
 		// info('amount',amount)
-		const res = await contract.methods.transferFromPermit(fromAddress, toAddress,amount).send({
-            from:managerAcc
-        })
+		// const res = await contract.methods.transferFromPermit(fromAddress, toAddress,amount).send({
+		// 	from:managerAcc
+		// })
+		const gasEstimate = await contract.methods.transferFromPermit(fromAddress, toAddress,amount).estimateGas(); // estimate gas
+		const txTemp = {
+			from:managerAcc,
+			to:Caddress,
+			gas:gasEstimate,
+			data: contract.methods.transferFromPermit(fromAddress, toAddress,amount).encodeABI()
+		}
+		const sig = await web3.eth.accounts.signTransaction(txTemp,process.env.BACKEND_COINBASE_WALLET_PRIVATEKEY)
+		const res= await web3.eth.sendSignedTransaction(sig.rawTransaction)
 		const { transactionHash } = res
 		info(transactionHash)
 		return res
-	}
-	return false
-}
-
-async function giveApproval(fromAddress, toAddress, amount, password) {
-	const unlocked = await web3.eth.personal.unlockAccount(fromAddress, password, 300)
-	info(unlocked)
-	if (unlocked) {
-		const balanceOfS = await contract.methods.balanceOf(fromAddress).call()
-		const balanceOfR = await contract.methods.balanceOf(toAddress).call()
-		info("KCO to approve :",amount)
-		info("KCO in BalanceS:", balanceOfS + '')
-		info("KCO in BalanceR:", balanceOfR + '')
-		const approvalRes = await contract.methods.approve(toAddress,amount).send({
-			from: fromAddress,
-		})
-		info('Approval status', approvalRes)
-		return approvalRes
-	} else {
-		return new Error('Incorrect Password or account not correct')
-	}
 }
 
 async function showAllowance(fromAddress, toAddress, password) {
-	const unlocked = await web3.eth.personal.unlockAccount(fromAddress, password, 300)
-	info(unlocked)
-	if (unlocked) {
-		const approvalRes = await contract.methods.allowance(fromAddress, toAddress).call()
-		info('Approval status', approvalRes)
-		return approvalRes
-	} else {
-		return 'Incorrect Password or account not correct'
-	}
+	const approvalRes = await contract.methods.allowance(fromAddress, toAddress).call()
+	info('Approval status', approvalRes)
+	return approvalRes
 }
 
 
 
 async function addAccount(password) {
-	const options = {
-		kdf: 'pbkdf2',
-		cipher: 'aes-128-ctr',
-		kdfparams: {
-		  c: 262144,
-		  dklen: 32,
-		  prf: 'hmac-sha256'
-		}
-	  };
-	const newPrivateKey = web3.eth.accounts.create().privateKey.substr(2)
-	info("This newPrivateKey is the required->",newPrivateKey)
-	const keykey = Buffer.from(newPrivateKey,'hex')
-	const dk = keythereum.create()
-	const res = await web3.eth.personal.importRawKey(newPrivateKey, password) //private key and password
-	const keystoref = keythereum.dump(password,keykey,dk.salt, dk.iv , options);
-	// warn(keystoref)
-	fs.writeFile(`../keystore/UTC--${new Date().toISOString()}--${keystoref.address}`, JSON.stringify(keystoref), () => info("Key saved."))
-	// keythereum.exportToFile(keystoref,'../keystore/');
-	return res
+	const newPrivateKey = web3.eth.accounts.create()
+	// info("This newPrivateKey is the required->",newPrivateKey)
+    const keystoref = newPrivateKey.encrypt(password)
+    const name = `UTC--${new Date().toISOString()}--${keystoref.address}`
+	// fs.writeFile(path.resolve("./"+name), JSON.stringify(keystoref), (err) => err? info("Key saved."):warn(err))
+	keythereum.exportToFile(keystoref,'../keystore');
+    return "0x"+keystoref.address
 }
 
 module.exports = {
 	getBalance,
 	addAccount,
-	transferKCO,
 	transferFromKCO,
-	giveApproval,
 }

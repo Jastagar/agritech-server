@@ -50,16 +50,18 @@ router.post("/payment/verify", auth, async (req, res) => {
     if (expectedSignature === req.body.razorpay_signature) {
         //transfer KCO from admin to user wallet
         const walletAddress = req.body.walletAddress
-        const unlocked = await web3.eth.personal.unlockAccount(walletAddress, req.body.password, 1000)
-        await web3.eth.personal.unlockAccount(process.env.BACKEND_COINBASE_WALLET_ADDRESS, process.env.BACKEND_COINBASE_WALLET_PASSWORD, 1000)
-        if (!unlocked) {
-            res.status(400).json({ error: true, message: 'WrongPassword' })
-        }
         const KCOcontract = new web3.eth.Contract(CoinsABI2, Caddress)
         try {
-            const response = await KCOcontract.methods.withDrawTokens(walletAddress, (req.body.amount - 1)).send({
-                from: process.env.BACKEND_COINBASE_WALLET_ADDRESS
-            })
+            const gasEstimate = await KCOcontract.methods.withDrawTokens(walletAddress, (req.body.amount - 1)).estimateGas(); // estimate gas
+            const txTemp = {
+                from:process.env.BACKEND_COINBASE_WALLET_ADDRESS,
+                to:Caddress,
+                gas:gasEstimate,
+                data: KCOcontract.methods.withDrawTokens(walletAddress, (req.body.amount - 1)).encodeABI()
+            }
+            const sig = await web3.eth.accounts.signTransaction(txTemp,process.env.BACKEND_COINBASE_WALLET_PRIVATEKEY)
+            const response = await web3.eth.sendSignedTransaction(sig.rawTransaction)
+            
             const tx = response.transactionHash
             const walletBalance = await getBalance(walletAddress)
             const user = await User.findOne({ walletAddress: walletAddress })

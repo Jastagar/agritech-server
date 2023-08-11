@@ -11,16 +11,17 @@ function scheduleRefundCall(expire,cAddress){
     schedule.scheduleJob(schduleTime, async () => {
         try{
             const contract = loadContractAt(cAddress);
-            const unlockedAcc = await web3.eth.personal.unlockAccount(process.env.BACKEND_COINBASE_WALLET_ADDRESS,process.env.BACKEND_COINBASE_WALLET_PASSWORD,500)
-            info("Unlocked ACC",unlockedAcc)
-            if(unlockedAcc){
-                info("Refund called")
-                contract.methods.refund().send({
-                    from: process.env.BACKEND_COINBASE_WALLET_ADDRESS
-                })
-            }else{
-                info("Backend Account not unlocked")
-            }
+            info("Refund called")
+               const gasEstimate = await contract.methods.refund().estimateGas(); // estimate gas
+                const txTemp = {
+                    from:process.env.BACKEND_COINBASE_WALLET_ADDRESS,
+                    to:cAddress,
+                    gas:gasEstimate,
+                    data: contract.methods.refund().encodeABI()
+                }
+                const sig = await web3.eth.accounts.signTransaction(txTemp,process.env.BACKEND_COINBASE_WALLET_PRIVATEKEY)
+                await web3.eth.sendSignedTransaction(sig.rawTransaction)
+                info("--------------ContractExpired--------------")
         }catch(error){
             info(error.message)
         }

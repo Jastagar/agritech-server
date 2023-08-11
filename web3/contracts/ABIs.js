@@ -741,7 +741,8 @@ const CoinsABI2 = [
 	}
 ]
 // const Caddress = "0x8f13012ef2869c33dcB260bcc498C8eC9A593691"
-const Caddress = "0x1F26A75215E616B604023627985E15b5a5732De3"
+// const Caddress = "0x1F26A75215E616B604023627985E15b5a5732De3"
+const Caddress = "0x9a393215E928E519955293C0d6d64c8A10365dc5"
 
 module.exports = {
 	FundingABI2,

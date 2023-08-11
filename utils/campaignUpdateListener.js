@@ -21,7 +21,7 @@ const campaignListener = function (io) {
                 }
             });
             socket.on("disconnect", () => {
-                console.log("socket.io: User disconnected: ", socket.id);
+                // console.log("socket.io: User disconnected: ", socket.id);
             });
         })
     });
