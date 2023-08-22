@@ -2,7 +2,7 @@ const auth = require("../middleware/auth")
 const ContributionTx = require("../models/ContributionTx")
 const Transaction = require("../models/Transaction")
 const User = require("../models/User")
-const { info } = require("../utils/logger")
+const { info, warn } = require("../utils/logger")
 const { getBalance } = require("../web3/web3Wallet")
 const { TransferGaslessLy } = require("../web3/web3permit")
 
@@ -18,6 +18,12 @@ web3Router.post("/transfer", auth, async (req, res) => {
     const user = await User.findById(req.user._id);
     const data = req.body
     const receiver = await User.findOne({ walletAddress: data.addressTo })
+    if(!receiver){
+        res.json({
+            status: 'Failed',
+            message: "This User address does not exist on AgriTech"
+        })
+    }
     info("usersFound")
     try {
         info("Asking for Permit...")
@@ -45,7 +51,7 @@ web3Router.post("/transfer", auth, async (req, res) => {
             message: 'Transfer Complete'
         })
     } catch (error) {
-        // console.log(error)
+        warn(error)
         res.json({
             status: 'Failed',
             message: error.message

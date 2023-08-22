@@ -28,25 +28,29 @@ async function getBalance(accountAddress) {
 async function transferFromKCO(fromAddress, toAddress, amount, password) {
 	
 	await showAllowance(fromAddress, toAddress, password)
-		info('Transfering...')
-		// info('from',fromAddress)
-		// info('to',toAddress)
-		// info('amount',amount)
-		// const res = await contract.methods.transferFromPermit(fromAddress, toAddress,amount).send({
-		// 	from:managerAcc
-		// })
-		const gasEstimate = await contract.methods.transferFromPermit(fromAddress, toAddress,amount).estimateGas(); // estimate gas
-		const txTemp = {
-			from:managerAcc,
-			to:Caddress,
-			gas:gasEstimate,
-			data: contract.methods.transferFromPermit(fromAddress, toAddress,amount).encodeABI()
-		}
-		const sig = await web3.eth.accounts.signTransaction(txTemp,process.env.BACKEND_COINBASE_WALLET_PRIVATEKEY)
-		const res= await web3.eth.sendSignedTransaction(sig.rawTransaction)
-		const { transactionHash } = res
-		info(transactionHash)
-		return res
+	info('Transfering...')
+	info('Amount:',amount);
+	info('From:',fromAddress);
+	info('To:',toAddress);
+	// info('from',fromAddress)
+	// info('to',toAddress)
+	// info('amount',amount)
+	// const res = await contract.methods.transferFromPermit(fromAddress, toAddress,amount).send({
+	// 	from:managerAcc
+	// })
+	const gasEstimate = await contract.methods.transferFromPermit(fromAddress, toAddress,amount).estimateGas(); // estimate gas
+	info("EstimatedGas=>",gasEstimate)
+	const txTemp = {
+		from:managerAcc,
+		to:Caddress,
+		gas:gasEstimate,
+		data: contract.methods.transferFromPermit(fromAddress, toAddress,amount).encodeABI()
+	}
+	const sig = await web3.eth.accounts.signTransaction(txTemp,process.env.BACKEND_COINBASE_WALLET_PRIVATEKEY)
+	const res= await web3.eth.sendSignedTransaction(sig.rawTransaction)
+	const { transactionHash } = res
+	info(transactionHash)
+	return res
 }
 
 async function showAllowance(fromAddress, toAddress, password) {
